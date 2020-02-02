@@ -50,33 +50,34 @@ func main() {
 	// Calculate neural network outputs from 0 to N-1
 	for i:= 0; i < input_N; i++ {
 		var X[]float64
-		var calculated_Zs[]float64
+		var calculated_Zs[3]float64
 
 		x1 := math.Sin( (2 * math.Pi * float64(i - 1)) / float64(input_N) )
 		x2 := math.Cos( (2 * math.Pi * float64(i - 1)) / float64(input_N) )
 		X = append(X, x1)
 		X = append(X, x2)
 
-		channel := make(chan float64, 3)
 		write := make(chan bool)
+		complete := make(chan int, 3)
 
 		for j := 0; j < 3; j++ {
-			if j > 0 {
-				// block and wait for channel
-				<- write
-			} 
-			go func(input int) {
+			go func(input int) { 
 				z := sigmoid(X, coefficients[input])
-				channel <- float64(z)
+				if input > 0 {
+					// block and wait for channel
+					<- write
+				}
+				calculated_Zs[input] = z
+				complete <- input
 				write <- true
 			}(j)
 		}
-		
-		for d := 0; d < 3; d++ {
-			calculated_Zs = append(calculated_Zs, <- channel)
+	
+		for d := 0; d < cap(complete); d++ {
+			<- complete
 		}
 
-		output := sigmoid(calculated_Zs, Betas)
-		fmt.Println("Neural Network Output", (i + 1), ":", output)
+		output := sigmoid(calculated_Zs[:], Betas)
+		fmt.Println("Neural Network Output", (i), ":", output)
 	}
 }
