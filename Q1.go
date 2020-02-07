@@ -23,13 +23,13 @@ type Play struct {
 type Comedy struct {
 	laughs float32
 	deaths int32
-	play Play
+	Play
 }
 
 type Tragedy struct {
 	laughs float32
 	deaths int32
-	play Play
+	Play
 }
 
 type Seat struct {
@@ -63,33 +63,33 @@ type Show interface {
 }
 
 func (comedy *Comedy) getName() string {
-	return comedy.play.name
+	return comedy.name
 }
 
 func (tragedy *Tragedy) getName() string {
-	return tragedy.play.name
+	return tragedy.name
 }
 
 func (comedy *Comedy) getShowStart() time.Time {
-	return comedy.play.showStart
+	return comedy.showStart
 }
 
 func (tragedy *Tragedy) getShowStart() time.Time {
-	return tragedy.play.showStart
+	return tragedy.showStart
 }
 
 func (comedy *Comedy) getShowEnd() time.Time {
-	return comedy.play.showEnd
+	return comedy.showEnd
 }
 
 func (tragedy *Tragedy) getShowEnd() time.Time {
-	return tragedy.play.showEnd
+	return tragedy.showEnd
 }
 
 func (comedy *Comedy) addPurchase(ticket *Ticket) bool {
 	if comedy.isNotPurchased(ticket) {
 		// A ticket for the same seat is NOT already sold. So we can the new ticket.
-		comedy.play.purchased = append(comedy.play.purchased, *ticket)
+		comedy.purchased = append(comedy.purchased, *ticket)
 		return true
 
 	} else {
@@ -100,7 +100,7 @@ func (comedy *Comedy) addPurchase(ticket *Ticket) bool {
 func (tragedy *Tragedy) addPurchase(ticket *Ticket) bool {
 	if tragedy.isNotPurchased(ticket) {
 		// A ticket for the same seat is NOT already sold. So we can the new ticket.
-		tragedy.play.purchased = append(tragedy.play.purchased, *ticket)
+		tragedy.purchased = append(tragedy.purchased, *ticket)
 		return true
 
 	} else {
@@ -110,7 +110,7 @@ func (tragedy *Tragedy) addPurchase(ticket *Ticket) bool {
 
 func (comedy *Comedy) isNotPurchased(ticket *Ticket) bool {
 	seat_num := ticket.s.number
-	comedy_tickets := comedy.play.purchased
+	comedy_tickets := comedy.purchased
 
 	// Check if any of the tickets have the same seat_num
 	for i := 0; i < len(comedy_tickets); i++ {
@@ -126,7 +126,7 @@ func (comedy *Comedy) isNotPurchased(ticket *Ticket) bool {
 
 func (tragedy *Tragedy) isNotPurchased(ticket *Ticket) bool {
 	seat_num := ticket.s.number
-	tragedy_tickets := tragedy.play.purchased
+	tragedy_tickets := tragedy.purchased
 
 	// Check if any of the tickets have the same seat_num
 	for i := 0; i < len(tragedy_tickets); i++ {
@@ -141,35 +141,27 @@ func (tragedy *Tragedy) isNotPurchased(ticket *Ticket) bool {
 }
 
 func NewComedy() Comedy {
-	comedy := Comedy{}
-	comedy.laughs = 0.2
-	comedy.deaths = 0
 	tickets := []Ticket{}
 	dflt_start := "2020-03-03T16:00:00"
 	dflt_end := "2020-03-03T17:20:00"
-	play := Play{}
-	play.name = "Tartuffe"
-	play.purchased = tickets
-	play.showStart, _ = time.Parse(layout, dflt_start)
-	play.showEnd, _ = time.Parse(layout, dflt_end)
-	comedy.play = play
+	show_start, _ := time.Parse(layout, dflt_start)
+	show_end, _ := time.Parse(layout, dflt_end)
+	comedy := Comedy{Play: Play{name: "Tartuffe", purchased: tickets, showStart: show_start, showEnd: show_end}}
+	comedy.laughs = 0.2
+	comedy.deaths = 0
 
 	return comedy 
 }
 
 func NewTragedy() Tragedy{
-	tragedy := Tragedy{}
-	tragedy.laughs = 0.0
-	tragedy.deaths = 12
-	tickets := []Ticket{}
 	dflt_start := "2020-04-16T09:30:00"
 	dflt_end := "2020-04-16T12:30:00"
-	play := Play{}
-	play.name = "Macbeth"
-	play.purchased = tickets
-	play.showStart, _ = time.Parse(layout, dflt_start)
-	play.showEnd, _ = time.Parse(layout, dflt_end)
-	tragedy.play = play
+	show_start, _ := time.Parse(layout, dflt_start)
+	show_end, _ := time.Parse(layout, dflt_end)
+	tickets := []Ticket{}
+	tragedy := Tragedy{Play: Play{name: "Macbeth", purchased: tickets, showStart: show_start, showEnd: show_end}}
+	tragedy.laughs = 0.0
+	tragedy.deaths = 12
 
 	return tragedy
 }
@@ -492,15 +484,15 @@ func main() {
 	comedy := NewComedy()
 	comedy_start := "2020-03-03T19:30:00"
 	comedy_end := "2020-03-03T20:00:00"
-	comedy.play.showStart, _ = time.Parse(layout, comedy_start)
-	comedy.play.showEnd, _ = time.Parse(layout, comedy_end)
+	comedy.showStart, _ = time.Parse(layout, comedy_start)
+	comedy.showEnd, _ = time.Parse(layout, comedy_end)
 
 	// Tragedy Show
 	tragedy := NewTragedy()
 	tragedy_start := "2020-04-10T20:00:00"
 	tragedy_end := "2020-04-10T23:00:00"
-	tragedy.play.showStart, _ = time.Parse(layout, tragedy_start)
-	tragedy.play.showEnd, _ = time.Parse(layout, tragedy_end)
+	tragedy.showStart, _ = time.Parse(layout, tragedy_start)
+	tragedy.showEnd, _ = time.Parse(layout, tragedy_end)
 
 	// Add the shows to the show list	
 	shows = append(shows, &comedy)
